@@ -1,5 +1,7 @@
 # 배달앱 손익계산서 Agent (baedal-pnl)
 
+**한국어** · [English](README.en.md)
+
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
@@ -63,4 +65,5 @@ uvicorn app.main:app --reload --port 8077   # http://127.0.0.1:8077
 
 ## 알려진 한계
 - 쿠팡 서비스이용료(롤업)와 개별수수료 합의 차이(≈매출의 0.7%)는 **VAT 조정분**. 손익엔 개별수수료 기준으로 계상하고, 정산입금액과의 차이를 경고로 표기.
-- 과세유형(일반/간이/면세)별 VAT 분리는 미구현(향후 설정값).
+- 요기요 importer는 실파일 미검증(헤더 동의어 매칭 적응형). 실파일 투입 시 자동 검산으로 정합성 확인.
+- 부가세 추정은 경영관리용. 실제 세무신고는 세무사·홈택스 자료로 확정 권장.
