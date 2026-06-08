@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>배달앱 손익계산서 Agent</title>
+<style>
+  :root { --bg:#f5f7fb; --card:#ffffff; --line:#e6e9f0; --accent:#4472c4; --ink:#1f2430; --muted:#6b7280; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; }
+  .wrap { max-width:920px; margin:0 auto; padding:32px 20px 64px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 24px; font-size:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:20px 22px; margin-bottom:18px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .card h2 { font-size:15px; margin:0 0 14px; }
+  .drop { border:2px dashed var(--line); border-radius:12px; padding:26px; text-align:center;
+    color:var(--muted); cursor:pointer; transition:.15s; }
+  .drop:hover, .drop.hover { border-color:var(--accent); background:#f0f4ff; color:var(--accent); }
+  .files { margin-top:10px; font-size:13px; color:var(--ink); }
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px 18px; }
+  label.f { display:flex; flex-direction:column; font-size:12px; color:var(--muted); gap:4px; }
+  input[type=text], input[type=number], input[type=password] {
+    padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px; }
+  .row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+  button { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:12px 20px;
+    font-size:15px; font-weight:600; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td { padding:7px 8px; border-bottom:1px solid var(--line); }
+  td.amt { text-align:right; font-variant-numeric:tabular-nums; }
+  tr.total td { font-weight:700; border-bottom:2px solid var(--accent); }
+  tr.sub td { color:var(--muted); }
+  .warn { font-size:12px; color:#92400e; background:#fffbeb; border:1px solid #fde68a;
+    border-radius:8px; padding:8px 10px; margin-top:6px; }
+  .actions { margin-top:16px; display:flex; gap:10px; align-items:center; }
+  .big { font-size:20px; font-weight:700; color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>배달앱 손익계산서 Agent</h1>
+  <p class="sub">배민·쿠팡이츠 정산파일을 올리면 자동으로 손익계산서를 만듭니다. (숫자는 결정적 파싱, 막막한 항목만 LLM)</p>
+
+  <div class="card">
+    <h2>1. 정산파일 업로드</h2>
+    <div class="drop" id="drop">여기로 파일을 끌어다 놓거나 클릭 — 배민/쿠팡이츠 xlsx (여러 개 가능)
+      <input type="file" id="file" multiple accept=".xlsx,.xls,.csv" hidden />
+    </div>
+    <div class="files" id="filelist"></div>
+    <div class="grid" style="margin-top:14px">
+      <label class="f">배민 파일 비밀번호 (암호화된 경우 — 파일마다 다름)
+        <input type="password" id="baemin_password" placeholder="배민 정산명세서 비밀번호" />
+        <span id="pw_hint" style="color:#b45309; font-size:11px; display:none">🔒 배민 파일이 암호화되어 있어요. 비밀번호를 입력하고 다시 생성하세요.</span>
+      </label>
+      <label class="f">대상 월 (비우면 파일에서 자동)
+        <input type="text" id="period" placeholder="2026-05" />
+      </label>
+      <label class="f">과세유형
+        <select id="tax_type" style="padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px;">
+          <option value="general">일반과세자 (공급가액 기준 + 부가세 정산)</option>
+          <option value="simplified">간이과세자 (총액 기준, 저율 부가세)</option>
+          <option value="exempt">면세사업자 (부가세 없음)</option>
+        </select>
+      </label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <input type="checkbox" id="use_llm" /><label for="use_llm">미매칭 항목 LLM 분류 사용 (Ollama 필요)</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 수기입력 (배달앱 파일에 없는 항목 — 당기순이익 산출용)</h2>
+    <div class="grid">
+      <label class="f">식자재(매출원가)<input type="number" id="food_cost" value="0" /></label>
+      <label class="f">인건비<input type="number" id="labor" value="0" /></label>
+      <label class="f">임대료<input type="number" id="rent" value="0" /></label>
+      <label class="f">공과금<input type="number" id="utilities" value="0" /></label>
+      <label class="f">기타 판관비<input type="number" id="other_sga" value="0" /></label>
+      <label class="f">영업외수익<input type="number" id="other_income" value="0" /></label>
+      <label class="f">이자비용<input type="number" id="interest_expense" value="0" /></label>
+      <label class="f">법인세등<input type="number" id="income_tax" value="0" /></label>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="go">손익계산서 생성</button>
+    <span id="status" class="sub" style="margin:0"></span>
+  </div>
+
+  <div class="card" id="result" style="display:none; margin-top:18px">
+    <h2>손익계산서 <span id="r_period"></span></h2>
+    <table id="r_table"></table>
+    <div id="r_vat" style="margin-top:14px"></div>
+    <div id="r_warnings"></div>
+    <div class="actions">
+      <button id="download">엑셀 다운로드</button>
+      <span class="big" id="r_net"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let picked = [];
+const fileInput = $("file"), drop = $("drop");
+drop.onclick = () => fileInput.click();
+["dragover","dragenter"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("hover"); }));
+["dragleave","drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("hover"); }));
+drop.addEventListener("drop", ev => { picked = [...ev.dataTransfer.files]; renderFiles(); });
+fileInput.onchange = () => { picked = [...fileInput.files]; renderFiles(); };
+function renderFiles() {
+  $("filelist").innerHTML = picked.length
+    ? picked.map(f => "📄 " + f.name).join("<br>") : "";
+}
+
+let lastXlsx = null, lastName = "손익계산서.xlsx";
+$("go").onclick = async () => {
+  if (!picked.length) { alert("정산파일을 올려주세요."); return; }
+  const fd = new FormData();
+  picked.forEach(f => fd.append("files", f));
+  ["baemin_password","period"].forEach(k => fd.append(k, $(k).value));
+  fd.append("use_llm", $("use_llm").checked);
+  fd.append("tax_type", $("tax_type").value);
+  ["food_cost","labor","rent","utilities","other_sga","other_income","interest_expense","income_tax"]
+    .forEach(k => fd.append(k, $(k).value || 0));
+  $("status").textContent = "처리 중…"; $("go").disabled = true;
+  try {
+    const r = await fetch("/api/generate", { method:"POST", body:fd });
+    const d = await r.json();
+    const hint = $("pw_hint");
+    if (d.needs_baemin_password) {
+      hint.style.display = "block";
+      $("baemin_password").focus();
+      $("status").textContent = "배민 비밀번호 필요";
+    } else {
+      hint.style.display = "none";
+      $("status").textContent = "완료";
+    }
+    renderResult(d);
+  } catch (e) { $("status").textContent = "오류: " + e; }
+  $("go").disabled = false;
+};
+
+function fmt(n){ return (n<0?"-":"") + Math.abs(n).toLocaleString("ko-KR"); }
+function renderResult(d) {
+  $("result").style.display = "block";
+  $("r_period").textContent = d.period ? "("+d.period+")" : "";
+  const totals = new Set(["Ⅲ. 매출총이익","Ⅴ. 영업이익","Ⅷ. 법인세비용차감전순이익","Ⅹ. 당기순이익"]);
+  $("r_table").innerHTML = d.lines.map(l => {
+    const cls = totals.has(l.label) ? "total" : (l.level>0 ? "sub" : "");
+    return `<tr class="${cls}"><td>${l.label}</td><td class="amt">${fmt(l.amount)}</td></tr>`;
+  }).join("");
+  $("r_net").textContent = "당기순이익 " + fmt(d.net_income) + "원";
+  const v = d.vat_summary;
+  if (v) {
+    $("r_vat").innerHTML =
+      `<table><tr class="total"><td colspan="2">부가가치세 정산 (${v.label})</td></tr>`
+      + `<tr><td>매출세액</td><td class="amt">${fmt(v.output_vat)}</td></tr>`
+      + `<tr><td>매입세액(공제)</td><td class="amt">${fmt(v.input_vat)}</td></tr>`
+      + `<tr class="total"><td>납부예상세액</td><td class="amt">${fmt(v.payable)}</td></tr></table>`
+      + `<div class="warn" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af">${v.note}</div>`;
+  } else { $("r_vat").innerHTML = ""; }
+  $("r_warnings").innerHTML = (d.warnings||[]).map(w => `<div class="warn">${w}</div>`).join("");
+  lastXlsx = d.xlsx_base64; lastName = d.xlsx_filename || lastName;
+}
+
+$("download").onclick = () => {
+  if (!lastXlsx) return;
+  const bytes = Uint8Array.from(atob(lastXlsx), c => c.charCodeAt(0));
+  const blob = new Blob([bytes], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = lastName; a.click();
+};
+</script>
+</body>
+</html>

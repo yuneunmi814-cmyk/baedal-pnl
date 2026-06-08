@@ -1,0 +1,22 @@
+# 실제 정산/매출 데이터·산출물 (개인정보 — 절대 커밋 금지)
+data/*.xlsx
+data/*.xls
+data/*.csv
+!data/_FAKE_yogiyo_sample.xlsx
+손익계산서*.xlsx
+*정산명세서*.xlsx
+uploads/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# OS / 편집기
+.DS_Store
+*.log
+.idea/
+.vscode/

@@ -1,0 +1,8 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+pandas>=2.2
+openpyxl>=3.1
+msoffcrypto-tool>=5.4
+pydantic>=2.6
+requests>=2.31
