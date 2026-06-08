@@ -14,6 +14,12 @@
 
 > 레퍼런스: beancount/beangulp(importer 골격) · smart_importer(분류 hook) · billcat-local-llm(로컬 LLM 분류)
 
+## 데모
+
+![demo](docs/demo.gif)
+
+*(가짜 데모 데이터 — 실제 정산값 아님)*
+
 ## 스크린샷
 
 | 업로드 (파일 + 과세유형 + 수기입력) | 결과 (손익계산서 + 부가세 정산) |

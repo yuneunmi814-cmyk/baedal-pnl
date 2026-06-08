@@ -20,6 +20,12 @@ fuzzy "what account is this line item?" mapping uses an LLM (local Ollama).**
 > References studied: beancount/beangulp (importer skeleton) · smart_importer
 > (classification hook) · billcat-local-llm (local-LLM categorization).
 
+## Demo
+
+![demo](docs/demo.gif)
+
+*(Synthetic demo data — not real settlement values.)*
+
 ## Screenshots
 
 | Upload (files + tax type + manual inputs) | Result (income statement + VAT settlement) |
