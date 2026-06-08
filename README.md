@@ -1,14 +1,26 @@
 # 배달앱 손익계산서 Agent (baedal-pnl)
 
-배민·쿠팡이츠 **정산/매출 파일을 업로드하면 자동으로 손익계산서(당기순이익까지)** 를 만든다.
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
+![Ollama](https://img.shields.io/badge/LLM-Ollama-000000?logo=ollama&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![platforms](https://img.shields.io/badge/배민·쿠팡이츠·요기요-정산파싱-FF6B00)
+
+배민·쿠팡이츠·요기요 **정산/매출 파일을 업로드하면 자동으로 손익계산서(당기순이익 + 과세유형별 부가세)** 를 만든다.
 설계 철학: **숫자는 결정적 코드(pandas/openpyxl)로, 막막한 항목명 매핑만 LLM(Ollama)으로.**
 
-> 청사진: [`../손익계산서-agent-reference.md`](../손익계산서-agent-reference.md)
 > 레퍼런스: beancount/beangulp(importer 골격) · smart_importer(분류 hook) · billcat-local-llm(로컬 LLM 분류)
+
+## 스크린샷
+
+| 업로드 (파일 + 과세유형 + 수기입력) | 결과 (손익계산서 + 부가세 정산) |
+|---|---|
+| ![업로드 화면](docs/screenshot-upload.png) | ![결과 화면](docs/screenshot-result.png) |
 
 ## 파이프라인
 업로드 → ① 플랫폼 식별(`identify`) → ② 선언적 파싱(`extract`) → ③ 규칙 분류(+미매칭만 LLM 폴백)
-→ ④ 기간·플랫폼 통합 → ⑤ 손익계산서 + 엑셀 출력
+→ ④ 기간·플랫폼 통합 → ⑤ 과세유형별 부가세 분리 → ⑥ 손익계산서 + 엑셀 출력
 
 ## 구조
 ```
