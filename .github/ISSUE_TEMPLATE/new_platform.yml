@@ -1,0 +1,35 @@
+name: "🆕 새 배달앱 지원 (New platform importer)"
+description: "땡겨요·위메프오 등 새 배달앱이나 새 정산 양식 지원을 요청/제안할 때"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        새 importer는 보통 **파일 하나만 추가**하면 됩니다. → [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md)
+        🔒 **실제 금액이 든 파일은 첨부하지 마세요.** 컬럼명·구조만 알려주셔도 충분합니다.
+  - type: input
+    id: platform
+    attributes:
+      label: 플랫폼 이름
+      placeholder: "예) 땡겨요"
+    validations:
+      required: true
+  - type: textarea
+    id: columns
+    attributes:
+      label: 정산 파일 구조 (아는 만큼)
+      description: "헤더(컬럼) 이름 목록, 시트 구성, 암호화 여부 등 — 실제 금액 말고 **구조만**"
+      placeholder: |
+        시트: 정산내역
+        컬럼: 주문일자, 주문금액, 중개이용료, 결제수수료, 배달비, 광고비, 부가세, 입금액
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: 직접 만들어 보실 건가요?
+      options:
+        - 제가 PR로 만들어 볼게요 (가이드 따라)
+        - 양식만 제공할게요, 구현은 도움이 필요해요
+    validations:
+      required: true

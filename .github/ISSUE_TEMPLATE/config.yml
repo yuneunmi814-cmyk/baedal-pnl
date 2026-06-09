@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 질문 · 사용법 문의 (Questions)
+    url: https://github.com/yuneunmi814-cmyk/baedal-pnl/discussions
+    about: 버그가 아니라 "이거 어떻게 쓰나요?" 같은 질문이면 Discussions로 편하게 남겨주세요.
+  - name: 📖 기여 가이드 (Contributing guide)
+    url: https://github.com/yuneunmi814-cmyk/baedal-pnl/blob/main/CONTRIBUTING.md
+    about: PR을 보내기 전에 한 번 읽어보세요 (새 importer 추가법 포함).

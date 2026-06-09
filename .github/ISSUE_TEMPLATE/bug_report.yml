@@ -1,0 +1,47 @@
+name: "🐞 버그 리포트 (Bug report)"
+description: "파일이 안 열리거나, 숫자가 이상하거나, 에러가 날 때"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🔒 **중요: 실제 정산 데이터를 올리지 마세요.**
+        금액·상호 등은 **임의의 가짜 값으로 바꿔서** 첨부해 주세요. (남의 민감정보일 수 있습니다)
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 어느 플랫폼 파일인가요?
+      options:
+        - 배민 (배달의민족)
+        - 쿠팡이츠
+        - 요기요
+        - 여러 개 / 통합
+        - 기타·모름
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 무슨 일이 있었나요?
+      description: 무엇을 했고 / 무엇을 기대했고 / 실제로 어떻게 됐는지
+      placeholder: "예) 쿠팡 파일을 올렸더니 매출액이 0으로 나왔어요. 22,000,000원이 나와야 합니다."
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 재현 방법 / 실행한 명령
+      render: shell
+      placeholder: "python run_cli.py data/_FAKE_yogiyo_sample.xlsx"
+  - type: input
+    id: version
+    attributes:
+      label: Python 버전
+      placeholder: "python3 --version 결과 (예: Python 3.11.5)"
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 확인
+      options:
+        - label: 첨부한 데이터에 실제 매출·상호 등 민감정보가 없습니다 (가짜 값으로 대체했어요).
+          required: true
