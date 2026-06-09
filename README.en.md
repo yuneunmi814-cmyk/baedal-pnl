@@ -2,6 +2,7 @@
 
 [한국어](README.md) · **English**
 
+[![CI](https://github.com/yuneunmi814-cmyk/baedal-pnl/actions/workflows/ci.yml/badge.svg)](https://github.com/yuneunmi814-cmyk/baedal-pnl/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
