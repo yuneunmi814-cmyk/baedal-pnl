@@ -169,5 +169,11 @@ python run_cli.py baemin.xlsx coupang.xlsx \
 - VAT figures are for management accounting; for actual tax filing, confirm with an accountant / Hometax data.
 </details>
 
+## 🤝 Contributing
+
+New platform importers, a one-line classification rule, typo fixes, real-file Yogiyo
+verification — **all welcome.** See [**CONTRIBUTING.md**](CONTRIBUTING.md) for a
+step-by-step guide. (A new importer is usually just one file!)
+
 ## License
 MIT — free to use, modify, and distribute.
